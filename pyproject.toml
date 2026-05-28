@@ -1,0 +1,11 @@
+[project]
+name = "ctxgen"
+version = "1.0.0"
+description = "Bundle source files into a single LLM context."
+authors = [{ name = "Alexandre Vieira", email = "" }]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+
+# No [build-system] block — this project is not pip-installable.
+# Clone and symlink the root `ctxgen` script instead.
