@@ -20,6 +20,7 @@ class Colors:
     ITALIC = '\033[3m'
     UNDERLINE = '\033[4m'
     END = '\033[0m' 
+    BLUE_BOLD = '\033[1;34m'
     BG_BLUE = '\033[44m'
     BG_CYAN = '\033[46m'
     WHITE = '\033[97m'
@@ -50,7 +51,7 @@ class Colors:
     
     @classmethod
     def text_banner(cls, text):
-        return f"{cls.BLUE}{text}{cls.END}"
+        return f"{cls.BLUE_BOLD}{text}{cls.END}"
         
     @classmethod
     def success(cls, number_files, path):
