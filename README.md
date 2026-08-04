@@ -15,7 +15,7 @@
 
 ---
 
-> [!NOTE]
+> [!NOTE]  
 > Easily pack your project repository into a clean, structured prompt context for ChatGPT, Claude, Gemini, or any other LLM.
 
 ---
@@ -28,7 +28,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
-- [Developer](#developer)
+- [Author](#author)
 - [License](#license)
 
 ---
@@ -64,13 +64,13 @@
 
 When prompted to select files, you can use combinations of the following patterns:
 
-| Pattern | Description | Example |
-|---|---|---|
-| `all` | Selects all eligible files found | `all` |
-| `comma-separated` | Selects specific file numbers | `1,3,5` |
-| `hyphen-range` | Selects a continuous range of files | `1-4` |
-| `mixed` | Combines numbers and ranges | `1-3,5,7` |
-| `q` | Aborts the operation immediately | `q` |
+| Pattern           | Description                         | Example   |
+|-------------------|-------------------------------------|-----------|
+| `all`             | Selects all eligible files found    | `all`     |
+| `comma-separated` | Selects specific file numbers       | `1,3,5`   |
+| `hyphen-range`    | Selects a continuous range of files | `1-4`     |
+| `mixed`           | Combines numbers and ranges         | `1-3,5,7` |
+| `q`               | Aborts the operation immediately    | `q`       |
 
 ---
 
@@ -131,11 +131,11 @@ ctxgen generate txt -o ./my-prompt-context.txt
 
 ### Available Options
 
-| Flag | Short | Default | Description |
-|---|---|---|---|
-| `--dir` | `-d` | `.` *(Current folder)* | Target directory path to scan. |
-| `--out` | `-o` | `<dir-name>.txt` | Custom output path for the bundled text file in the CWD. |
-| `--ext` | `-e` | *None (All files)* | Space-separated list of extensions to include (e.g., .py .js). |
+| Flag    | Short | Default                | Description                                                    |
+|---------|-------|------------------------|----------------------------------------------------------------|
+| `--dir` | `-d`  | `.` *(Current folder)* | Target directory path to scan.                                 |
+| `--out` | `-o`  | `<dir-name>.txt`       | Custom output path for the bundled text file in the CWD.       |
+| `--ext` | `-e`  | *None (All files)*     | Space-separated list of extensions to include (e.g., .py .js). |
 ## Project Structure
 
 ```plaintext
@@ -158,9 +158,9 @@ ctxgen/
 
 ---
 
-## Developer
+## Author
 
-**Alexandre Vieira**
+**Alexandre Vieira**  
 GitHub: [@avieira-dev](https://github.com/avieira-dev)
 
 ---
