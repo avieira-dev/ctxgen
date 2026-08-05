@@ -15,6 +15,10 @@
 
 ---
 
+## Overview
+
+**ctxgen** eliminates the tedious task of copying and pasting individual source files when providing project context to AI models. Whether you need to feed an entire codebase or just a few specific files into an LLM, ctxgen scans your workspace, lets you interactively pick what matters, and outputs a neatly delimited text file ready for your prompt — in seconds.
+
 > [!NOTE]  
 > Easily pack your project repository into a clean, structured prompt context for ChatGPT, Claude, Gemini, or any other LLM.
 
@@ -22,7 +26,7 @@
 
 ## Table of Contents
 
-- [Overview](#overview)
+- [Showcase](#showcase)
 - [Features](#features)
 - [Selection Syntax](#selection-syntax)
 - [Installation](#installation)
@@ -33,11 +37,7 @@
 
 ---
 
-## Overview
-
-**ctxgen** eliminates the tedious task of copying and pasting individual source files when providing project context to AI models. Whether you need to feed an entire codebase or just a few specific files into an LLM, ctxgen scans your workspace, lets you interactively pick what matters, and outputs a neatly delimited text file ready for your prompt — in seconds.
-
-### Preview
+## Showcase
 
 <p align="center">
   <em>The tool recursively discovers all eligible files matching your parameters, presents them in an indexed list, and provides an immediate syntax guide for custom selection.</em><br>
@@ -45,8 +45,6 @@
   <em>After submitting a valid pattern selection (supporting indices, ranges, or mixed formats), the operations resolve into a structured text bundle with an aesthetic confirmation message</em><br>
   <img src="./assets/screenshots/screenshot-002.png" alt="Terminal screen showcasing successful bundle execution of 3 selected files into the target output text document" width="600"/><br><br>
 </p>
-
----
 
 ---
 
