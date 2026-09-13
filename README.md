@@ -1,23 +1,21 @@
 <div align="center">
-
-<h1>ctxgen</h1>
-
-<p>A sleek CLI tool to bundle your source code into a single text file for AI context windows.</p>
-
-<p>
-  <img src="https://img.shields.io/badge/version-v.1.0.0-4c1?style=flat-square"/>
-  <img src="https://img.shields.io/badge/maintenance-active-1f6feb?style=flat-square"/>
-  <img src="https://img.shields.io/badge/language-Python-3572A5?style=flat-square&logo=python&logoColor=white"/>
-  <img src="https://img.shields.io/badge/license-MIT-6e7781?style=flat-square"/>
-</p>
-
+    <h1>ctxgen</h1>
+    <p>A sleek CLI tool to bundle your source code into a single text file for AI context windows.</p>
+    <p>
+        <img src="https://img.shields.io/badge/version-v2.0.0-4c1?style=flat-square"/>
+        <img src="https://img.shields.io/badge/status-stable-2ea44f?style=flat-square"/>
+        <img src="https://img.shields.io/badge/platform-Linux-FCC624?style=flat-square&logo=linux&logoColor=black"/>
+        <img src="https://img.shields.io/badge/maintenance-active-1f6feb?style=flat-square"/>
+        <img src="https://img.shields.io/badge/language-Python-3572A5?style=flat-square&logo=python&logoColor=white"/>
+        <img src="https://img.shields.io/badge/license-MIT-6e7781?style=flat-square"/>
+    </p>
 </div>
 
 ---
 
 ## Overview
 
-**ctxgen** eliminates the tedious task of copying and pasting individual source files when providing project context to AI models. Whether you need to feed an entire codebase or just a few specific files into an LLM, ctxgen scans your workspace, lets you interactively pick what matters, and outputs a neatly delimited text file ready for your prompt — in seconds.
+**ctxgen** eliminates the tedious task of copying and pasting individual source files when providing project context to AI models. Whether you need to feed an entire codebase or just a few specific files into an LLM, ctxgen scans your workspace, presents a clear directory tree, lets you interactively toggle what matters, and outputs a neatly delimited text file ready for your prompt — in seconds.
 
 > [!NOTE]  
 > Easily pack your project repository into a clean, structured prompt context for ChatGPT, Claude, Gemini, or any other LLM.
@@ -28,7 +26,7 @@
 
 - [Showcase](#showcase)
 - [Features](#features)
-- [Selection Syntax](#selection-syntax)
+- [Interactive Controls](#interactive-controls)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Project Structure](#project-structure)
@@ -40,10 +38,10 @@
 ## Showcase
 
 <p align="center">
-  <em>The tool recursively discovers all eligible files matching your parameters, presents them in an indexed list, and provides an immediate syntax guide for custom selection.</em><br>
-  <img src="./assets/screenshots/screenshot-001.png" alt="Interactive index-based file picker showing 10 eligible files found in test-c-language directory alongside the selection syntax guide" width="600"/><br><br>
-  <em>After submitting a valid pattern selection (supporting indices, ranges, or mixed formats), the operations resolve into a structured text bundle with an aesthetic confirmation message</em><br>
-  <img src="./assets/screenshots/screenshot-002.png" alt="Terminal screen showcasing successful bundle execution of 3 selected files into the target output text document" width="600"/><br><br>
+  <em>The tool recursively discovers all eligible files matching your parameters, displays a visual directory tree structure, and opens an interactive checkbox selection menu.</em><br>
+  <img src="./assets/screenshots/screenshot-001.png" alt="Interactive file picker showing the directory tree view and interactive checkbox prompt" width="600"/><br><br>
+  <em>After confirming your selection, files are seamlessly bundled into a structured text document alongside rich metric statistics.</em><br>
+  <img src="./assets/screenshots/screenshot-002.png" alt="Terminal screen showcasing successful bundle execution of selected files into the target output text document" width="600"/><br><br>
 </p>
 
 ---
@@ -51,24 +49,25 @@
 ## Features
 
 - **Smart Workspace Scanning** — Automatically filters out noisy directories (`.git`, `node_modules`, `venv`, `__pycache__`, etc.) out of the box.
-- **Granular Interactive Selection** — Choose specific files, ranges, or everything at once using an intuitive, flexible index parser.
+- **Visual Directory Tree View** — Renders a clean hierarchical tree using Rich before file selection for full structural visibility.
+- **Interactive Checkbox Selector** — Easily select, toggle, or batch-select files using arrow keys and hotkeys powered by InquirerPy.
 - **Extension Filtering** — Isolate exactly what you need by targeting specific extensions (e.g., only `.py` or `.ts` files).
 - **Binary Safety Guardrails** — Safe processing that bypasses non-text and binary files preventing corrupted outputs.
-- **Modern Terminal UX** — Clean, color-coded ANSI interface featuring custom banners, real-time feedback, and dynamic processing spinners.
+- **Tech Purple CLI Theme** — Modern ANSI interface with custom panels, real-time progress indicators, and dynamic metrics reporting.
 
 ---
 
-## Selection Syntax
+## Interactive Controls
 
-When prompted to select files, you can use combinations of the following patterns:
+When selecting files in the CLI interactive menu, use the following keybindings:
 
-| Pattern           | Description                         | Example   |
-|-------------------|-------------------------------------|-----------|
-| `all`             | Selects all eligible files found    | `all`     |
-| `comma-separated` | Selects specific file numbers       | `1,3,5`   |
-| `hyphen-range`    | Selects a continuous range of files | `1-4`     |
-| `mixed`           | Combines numbers and ranges         | `1-3,5,7` |
-| `q`               | Aborts the operation immediately    | `q`       |
+| Keybinding | Action                                      |
+|:-----------|:--------------------------------------------|
+| `Space`    | Toggle selection for the focused file       |
+| `Ctrl + A` | Toggle selection for **all** eligible files |
+| `↑` / `↓`  | Move selection cursor up and down           |
+| `Enter`    | Confirm selection and start bundling        |
+| `Ctrl + C` | Abort operation gracefully                  |
 
 ---
 
@@ -81,7 +80,23 @@ git clone https://github.com/avieira-dev/ctxgen.git
 cd ctxgen
 ```
 
-### 2. Make the script executable
+### 2. Set up a virtual environment & install dependencies
+
+```bash
+# Create a virtual environment
+python3 -m venv .venv
+
+# Activate the virtual environment (Linux/macOS)
+source venv/bin/activate
+
+# Install dependencies
+pip install rich InquirerPy
+```
+
+> [!NOTE]  
+> If you prefer installing dependencies system-wide or user-wide instead of using a `venv`, you can run `pip install rich InquirerPy --user`.
+
+### 3. Make the script executable
 
 ```bash
 chmod +x ctxgen
@@ -90,7 +105,7 @@ chmod +x ctxgen
 > [!TIP]  
 > The root `ctxgen` script acts as the entry-point runner, bootstrapping the internal source modules automatically.
 
-### 3. Create a global symlink (Linux / macOS)
+### 4. Create a global symlink (Linux / macOS)
 
 ```bash
 sudo ln -s "$(pwd)/ctxgen" /usr/local/bin/ctxgen
@@ -134,6 +149,9 @@ ctxgen generate txt -o ./my-prompt-context.txt
 | `--dir` | `-d`  | `.` *(Current folder)* | Target directory path to scan.                                 |
 | `--out` | `-o`  | `<dir-name>.txt`       | Custom output path for the bundled text file in the CWD.       |
 | `--ext` | `-e`  | *None (All files)*     | Space-separated list of extensions to include (e.g., .py .js). |
+
+---
+
 ## Project Structure
 
 ```plaintext
@@ -145,7 +163,6 @@ ctxgen/
 │       ├── core.py
 │       ├── main.py
 │       └── utils/
-│           ├── colors.py
 │           └── messages.py
 ├── .gitignore
 ├── ctxgen

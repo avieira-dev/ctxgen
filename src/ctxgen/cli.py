@@ -1,55 +1,87 @@
 """
 FILE: cli.py
-DESCRIPTION: Argument parsing and command dispatch.
+DESCRIPTION: Argument parsing and command dispatch using Rich for help display.
 RESPONSIBILITIES:
   - Define the CLI surface (subcommands, flags, defaults)
   - Validate inputs and resolve paths
   - Delegate to core functions
 """
 
-import sys
 import argparse
+import sys
 from pathlib import Path
-from ctxgen.utils.colors import Colors
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+from ctxgen.core import generate_output, get_eligible_files, prompt_file_selection
 from ctxgen.utils.messages import abort
-from ctxgen.core import get_eligible_files, prompt_file_selection, generate_output
 
-_SEP = Colors.dim("─" * 90)
+console = Console()
 
 class Parser(argparse.ArgumentParser):
     def error(self, message):
         self.print_usage(sys.stderr)
-        print(f"ctxgen: error: {message}")
-        print()
+        console.print(f"[bold red]ctxgen error:[/bold red] {message}\n")
         sys.exit(2)
 
 def _print_help() -> None:
-    print("\n".join([
-        "",
-        f" {Colors.BOLD}HELP{Colors.END}",
-        _SEP,
-        "",
-        f"  {Colors.dim('Usage:')}  ctxgen <group> <command> [options]",
-        "",
-        f"  {Colors.cyan('Groups & Commands')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.BOLD}generate txt{Colors.END} >> Bundle source files into a .txt context",
-        "",
-        f"  {Colors.cyan('Options  (generate txt)')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.BOLD}-d, --dir{Colors.END} >> DIR Source directory to scan  {Colors.dim('(default: .)')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.BOLD}-o, --out{Colors.END} >> FILE Output file  {Colors.dim('(default: <dir-name>.txt in CWD)')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.BOLD}-e, --ext{Colors.END} >> EXT+ Filter extensions  {Colors.dim('(e.g. -e .py .cpp)')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.BOLD}-h, --help{Colors.END} >> Show this message and exit",
-        "",
-        f"  {Colors.cyan('Examples')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.dim('ctxgen generate txt')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.dim('ctxgen generate txt -d ~/Projects/ptah-engine -e .cpp .h')}",
-        f"  {Colors.WHITE}▸{Colors.END} {Colors.dim('ctxgen generate txt -o ./context.txt')}",
-        "",
-        _SEP,
-        "",
-    ]))
-    sys.exit(0)
+    help_content = Text()
 
+    # Usage
+    help_content.append("Usage:\n", style="bold magenta")
+    help_content.append("  ctxgen <group> <command> [options]\n\n", style="dim white")
+
+    # Commands
+    help_content.append("Groups & Commands:\n", style="bold magenta")
+    help_content.append("  ▸ ", style="bold white")
+    help_content.append("generate txt", style="bold purple")
+    help_content.append("    Bundle source files into a single .txt context\n\n", style="dim white")
+
+    # Options
+    help_content.append("Options (generate txt):\n", style="bold magenta")
+    help_content.append("  ▸ ", style="bold white")
+    help_content.append("-d, --dir  DIR", style="bold violet")
+    help_content.append("     Source directory to scan ", style="default")
+    help_content.append("(default: .)\n", style="dim")
+    
+    help_content.append("  ▸ ", style="bold white")
+    help_content.append("-o, --out  FILE", style="bold violet")
+    help_content.append("    Output file ", style="default")
+    help_content.append("(default: <dir-name>.txt in CWD)\n", style="dim")
+    
+    help_content.append("  ▸ ", style="bold white")
+    help_content.append("-e, --ext  EXT+", style="bold violet")
+    help_content.append("    Filter by extensions ", style="default")
+    help_content.append("(e.g. -e .py .cpp)\n", style="dim")
+    
+    help_content.append("  ▸ ", style="bold white")
+    help_content.append("-h, --help", style="bold violet")
+    help_content.append("        Show this help message and exit\n\n", style="default")
+
+    # Examples
+    help_content.append("Examples:\n", style="bold magenta")
+    help_content.append("  $ ctxgen generate txt\n", style="purple")
+    help_content.append("  $ ctxgen generate txt -d ~/Projects/my-app -e .py .h\n", style="purple")
+    help_content.append("  $ ctxgen generate txt -o ./context.txt\n\n", style="purple")
+
+    # Author / Footer
+    help_content.append("Created by ", style="dim white")
+    help_content.append("Alexandre Vieira", style="dim bold")
+    help_content.append(" (https://github.com/avieira-dev)\n", style="bold purple")
+
+    panel = Panel(
+        help_content,
+        title="[bold purple]ctxgen CLI Help[/bold purple]",
+        border_style="magenta",
+        box=box.ROUNDED,
+        padding=(1, 2),
+    )
+
+    console.print()
+    console.print(panel)
+    console.print()
+    sys.exit(0)
 
 def _build_parser() -> argparse.ArgumentParser:
     parser = Parser(prog="ctxgen", add_help=False)
@@ -64,7 +96,6 @@ def _build_parser() -> argparse.ArgumentParser:
     txt.add_argument("-e", "--ext",  nargs="+",    metavar="EXT")
 
     return parser
-
 
 def run() -> None:
     if len(sys.argv) == 1 or sys.argv[1] in ("-h", "--help"):

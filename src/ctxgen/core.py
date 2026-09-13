@@ -1,26 +1,62 @@
 """
 FILE: core.py
-DESCRIPTION: File scanning, interactive selection, and output generation.
+DESCRIPTION: File scanning, interactive selection, and output generation with real-time progress.
 RESPONSIBILITIES:
   - Discover eligible files in a target directory
-  - Present an interactive index-based file picker
-  - Write selected files into a structured text bundle
+  - Present a directory tree view and interactive checkbox file picker (Tech Purple styled)
+  - Write selected files into a structured text bundle and report rich stats
 """
 
 import sys
-import time
 from pathlib import Path
-from ctxgen.utils.colors import Colors
+from InquirerPy.base.control import Choice
+from InquirerPy.prompts.checkbox import CheckboxPrompt
+from InquirerPy.utils import get_style
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import (
+    BarColumn,
+    Progress,
+    SpinnerColumn,
+    TaskProgressColumn,
+    TextColumn,
+)
+from rich.table import Table
+from rich.tree import Tree
 from ctxgen.utils.messages import abort
 
-_IGNORE_DIRS = {".git", "__pycache__", "venv", "env", "node_modules", ".idea", ".vscode", "dist", "build"}
+console = Console()
 
+_IGNORE_DIRS = {
+    ".git",
+    "__pycache__",
+    "venv",
+    "env",
+    "node_modules",
+    ".idea",
+    ".vscode",
+    "dist",
+    "build",
+}
 
-def get_eligible_files(target_path: Path, extensions: list[str] | None, output_filename: str | None) -> list[Path]: 
+PURPLE_STYLE = get_style(
+    {
+        "questionmark": "magenta bold",
+        "pointer": "magenta bold",
+        "checkbox": "purple bold",
+        "answertoken": "white bold",
+        "instruction": "#888888",
+        "question": "white bold",
+    },
+    style_override=True,
+)
+
+def get_eligible_files(target_path: Path, extensions: list[str] | None, output_filename: str | None) -> list[Path]:
     eligible = []
 
     for path in target_path.rglob("*"):
-        rel_parts = path.parts[len(target_path.parts):]
+        rel_parts = path.parts[len(target_path.parts) :]
         if any(p.startswith(".") or p in _IGNORE_DIRS for p in rel_parts):
             continue
         if not path.is_file():
@@ -33,122 +69,153 @@ def get_eligible_files(target_path: Path, extensions: list[str] | None, output_f
 
     return sorted(eligible)
 
+def _build_file_tree(files: list[Path], target_path: Path) -> Tree:
+    """Generates a Rich Tree representation of eligible files relative to target_path."""
+    root_node = Tree(
+        f"[bold magenta]📁 {target_path.name}/[/bold magenta]",
+        guide_style="magenta",
+    )
+    nodes = {Path("."): root_node}
+
+    for file_path in files:
+        rel_path = file_path.relative_to(target_path)
+        current_node = root_node
+        
+        for parent in list(reversed(rel_path.parents))[:-1]:
+            if parent not in nodes:
+                nodes[parent] = current_node.add(
+                    f"[bold purple]📁 {parent.name}/[/bold purple]"
+                )
+            current_node = nodes[parent]
+
+        current_node.add(f"[dim white]📄 {rel_path.name}[/dim white]")
+
+    return root_node
 
 def prompt_file_selection(files: list[Path], target_path: Path) -> list[Path]:
     total = len(files)
-    pad   = len(str(total))
-    sep   = Colors.dim("─" * 90)
 
-    print(f"  {Colors.cyan('▸')} {Colors.dim(str(total))} eligible file{'s' if total != 1 else ''} found in {Colors.dim(str(target_path))}")
-    print()
+    console.print(
+        f" [bold magenta]▸[/bold magenta] [bold white]{total}[/bold white] "
+        f"[dim white]eligible file{'s' if total != 1 else ''} found in[/dim white] "
+        f"[magenta]{target_path}[/magenta]\n"
+    )
 
-    for idx, path in enumerate(files, 1):
-        rel = path.relative_to(target_path)
-        num = Colors.dim(f"[{str(idx).rjust(pad)}]")
-        print(f"  {num}  {rel}")
+    tree = _build_file_tree(files, target_path)
+    console.print(tree)
+    console.print()
 
-    print()
-    print(sep)
-    print(f"  {Colors.dim('Selection syntax:')}")
-    print(f"  {Colors.cyan('1,3,5')} {Colors.dim('specific files')}")
-    print(f"  {Colors.cyan('1-4')} {Colors.dim('range')}")
-    print(f"  {Colors.cyan('1-3,5,7')} {Colors.dim('mixed')}")
-    print(f"  {Colors.cyan('all')} {Colors.dim('every file')}")
-    print(f"  {Colors.cyan('q')} {Colors.dim('cancel')}")
-    print(sep)
-    print()
+    choices = [
+        Choice(value=path, name=str(path.relative_to(target_path)), enabled=True)
+        for path in files
+    ]
 
-    while True:
-        try:
-            choice = input(f"  {Colors.dim('›')} Select files: ").strip().lower()
-        except EOFError:
-            abort()
+    console.print("[dim white]Select files to include in context:[/dim white]")
 
-        print()
+    try:
+        selected = CheckboxPrompt(
+            message="",
+            qmark="",
+            amark="",
+            choices=choices,
+            style=PURPLE_STYLE,
+            long_instruction="(Space: toggle, Ctrl+A: toggle all, Enter: confirm)",
+            pointer="❯",
+            enabled_symbol="✔ ",
+            disabled_symbol="✘ ",
+            show_cursor=False,
+        ).execute()
+    except KeyboardInterrupt:
+        abort()
 
-        if choice == "q":
-            abort()
+    if not selected:
+        abort("No files were selected.")
 
-        if choice == "all":
-            return files
+    return selected
 
-        selected_indices: set[int] = set()
-        try:
-            for part in choice.split(","):
-                part = part.strip()
-                if "-" in part:
-                    start, end = part.split("-", 1)
-                    selected_indices.update(range(int(start), int(end) + 1))
-                else:
-                    selected_indices.add(int(part))
-
-            selected: list[Path] = []
-            for idx in sorted(selected_indices):
-                if 1 <= idx <= total:
-                    selected.append(files[idx - 1])
-                else:
-                    print(f"  {Colors.yellow('!')} Index {idx} is out of range — skipping.")
-
-            if not selected:
-                print()
-                print(f"  {Colors.error_abort('No valid files selected. Try again.')}\n")
-                continue
-
-            return selected
-
-        except ValueError:
-            print()
-            print(f"  {Colors.error_abort('Invalid format. Use numbers, ranges (e.g. 1-5), or all.')}\n")
-
-def _show_spinner(duration: float = 1.2) -> None:
-    """Displays a modern terminal spinner for a short artificial duration."""
-    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-    end_time = time.time() + duration
-    
-    while time.time() < end_time:
-        for frame in frames:
-            if time.time() >= end_time:
-                break
-            sys.stdout.write(f"\r  {Colors.cyan(frame)} Processing and bundling files...")
-            sys.stdout.flush()
-            time.sleep(0.08)
-            
-    sys.stdout.write("\r" + " " * 40 + "\r")
-    sys.stdout.flush()
+def _format_size(size_bytes: int) -> str:
+    """Formats raw byte counts into human-readable KB or MB strings."""
+    if size_bytes < 1024:
+        return f"{size_bytes} B"
+    elif size_bytes < 1024 * 1024:
+        return f"{size_bytes / 1024:.2f} KB"
+    else:
+        return f"{size_bytes / (1024 * 1024):.2f} MB"
 
 def generate_output(selected_files: list[Path], target_path: Path, output_file: Path) -> None:
     output_file.parent.mkdir(parents=True, exist_ok=True)
     files_written = 0
+    total_lines = 0
+
+    progress_bar = Progress(
+        SpinnerColumn(spinner_name="dots", style="bold magenta"),
+        TextColumn("[bold white]{task.description}"),
+        BarColumn(bar_width=30, complete_style="magenta", finished_style="purple"),
+        TaskProgressColumn(style="dim white"),
+        console=console,
+        transient=True,
+    )
 
     try:
-        with output_file.open("w", encoding="utf-8") as out:
-            for path in selected_files:
-                if path.resolve() == output_file.resolve():
-                    continue
-                try:
-                    content = path.read_text(encoding="utf-8")
-                    rel = path.relative_to(target_path)
+        with progress_bar:
+            task = progress_bar.add_task(
+                "Bundling files...", total=len(selected_files)
+            )
 
-                    out.write(f"{'=' * 60}\n")
-                    out.write(f"File: {rel}\n")
-                    out.write(f"{'=' * 60}\n\n")
-                    out.write(content)
-                    out.write("\n\n")
-                    files_written += 1
+            with output_file.open("w", encoding="utf-8") as out:
+                for path in selected_files:
+                    if path.resolve() == output_file.resolve():
+                        progress_bar.advance(task)
+                        continue
+                    try:
+                        content = path.read_text(encoding="utf-8")
+                        rel = path.relative_to(target_path)
 
-                except UnicodeDecodeError:
-                    rel = path.relative_to(target_path)
-                    print(f"  {Colors.yellow('!')} Skipped binary file: {Colors.dim(str(rel))}")
+                        header = f"{'=' * 60}\nFile: {rel}\n{'=' * 60}\n\n"
+                        out.write(header)
+                        out.write(content)
+                        out.write("\n\n")
 
-        _show_spinner(1.5)
+                        files_written += 1
+                        total_lines += content.count("\n") + 1
+                    except UnicodeDecodeError:
+                        rel = path.relative_to(target_path)
+                        console.print(
+                            f"  [bold yellow]![/bold yellow] Skipped binary file: [dim]{rel}[/dim]"
+                        )
+
+                    progress_bar.advance(task)
 
     except OSError as e:
-        _show_spinner(0.5)
-        print(Colors.error_saving(str(output_file)))
-        print(Colors.dim(f"  {e}"))
+        console.print(f" [bold red]✗ Error saving file:[/bold red] {output_file}")
+        console.print(f"  [dim]{e}[/dim]")
         sys.exit(1)
 
-    print(Colors.dim("─" * 60))
-    print()
-    print(Colors.success(files_written, str(output_file)))
-    print()
+    file_size = output_file.stat().st_size
+    formatted_size = _format_size(file_size)
+
+    table = Table.grid(padding=(0, 2))
+    table.add_column(style="bold magenta")
+    table.add_column(style="white")
+
+    table.add_row(
+        "Status:", "[bold purple]✔ Context Generated Successfully[/bold purple]"
+    )
+    table.add_row("Output File:", f"[dim white]{output_file}[/dim white]")
+    table.add_row(
+        "Files Bundled:", f"[bold magenta]{files_written}[/bold magenta] files"
+    )
+    table.add_row("Total Lines:", f"[bold magenta]{total_lines:,}[/bold magenta] lines")
+    table.add_row("File Size:", f"[bold purple]{formatted_size}[/bold purple]")
+
+    stats_panel = Panel(
+        table,
+        title="[bold purple] Summary Metrics [/bold purple]",
+        border_style="magenta",
+        box=box.ROUNDED,
+        padding=(1, 2),
+    )
+
+    console.print()
+    console.print(stats_panel)
+    console.print()

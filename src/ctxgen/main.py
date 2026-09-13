@@ -1,21 +1,18 @@
 """
 FILE: main.py
-DESCRIPTION: Entry-point. Wires together banner, version, and CLI dispatch.
+DESCRIPTION: Entry-point. Wires together welcome header and CLI dispatch.
 """
 
-from ctxgen.utils.messages import banner, version, abort
 from ctxgen.cli import run
+from ctxgen.utils.messages import abort, welcome_header
 
 def main() -> None:
-    banner()
-    version()
+    welcome_header()
 
     try:
         run()
     except KeyboardInterrupt:
-        print()
         abort()
-
 
 if __name__ == "__main__":
     main()
