@@ -28,7 +28,16 @@
 - [Features](#features)
 - [Interactive Controls](#interactive-controls)
 - [Installation](#installation)
+    - [Clone the repository](#1-clone-the-repository)
+    - [Create the virtual environment](#2-create-the-virtual-environment)
+    - [Activate the virtual environment (Linux/macOS)](#3-activate-the-virtual-environment-linuxmacos) 
+    - [Install dependencies](#4-install-dependencies)
+    - [Make the script executable](#5-make-the-script-executable)
+    - [Create a global symlink (Linux / macOS)](#6-create-a-global-symlink-linux--macos)
 - [Usage](#usage)
+    - [Command Structure](#command-structure)
+    - [Quick Examples](#quick-examples)
+    - [Available Options](#available-options)
 - [Project Structure](#project-structure)
 - [Author](#author)
 - [License](#license)
@@ -39,11 +48,11 @@
 
 <p align="center">
   <em>The tool recursively discovers all eligible files matching your parameters, displays a visual directory tree structure, and opens an interactive checkbox selection menu.</em><br>
-  <img src="./assets/screenshots/screenshot-01.png" alt="Interactive file picker showing the directory tree view and interactive checkbox prompt" width="600"/><br><br>
+  <img src="./assets/screenshots/screenshot-01.png" alt="Interactive file picker showing the directory tree view and interactive checkbox prompt" width="100%"/><br><br>
   <em>After confirming your selection, files are seamlessly bundled into a structured text document alongside rich metric statistics.</em><br>
-  <img src="./assets/screenshots/screenshot-02.png" alt="Terminal screen showcasing successful bundle execution of selected files into the target output text document" width="600"/><br><br>
+  <img src="./assets/screenshots/screenshot-02.png" alt="Terminal screen showcasing successful bundle execution of selected files into the target output text document" width="100%"/><br><br>
   <em>Help and available commands.</em><br>
-  <img src="./assets/screenshots/screenshot-03.png" alt="Help and available commands" width="600"/><br><br>
+  <img src="./assets/screenshots/screenshot-03.png" alt="Help and available commands" width="100%"/><br><br>
 </p>
 
 ---
