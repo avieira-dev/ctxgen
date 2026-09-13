@@ -4,7 +4,7 @@
     <p>
         <img src="https://img.shields.io/badge/version-v2.0.0-4c1?style=flat-square"/>
         <img src="https://img.shields.io/badge/status-stable-2ea44f?style=flat-square"/>
-        <img src="https://img.shields.io/badge/platform-Linux-FCC624?style=flat-square&logo=linux&logoColor=black"/>
+        <img src="https://img.shields.io/badge/platform-Linux%20%2F%20macOS-FCC624?style=flat-square&logo=linux&logoColor=black"/>
         <img src="https://img.shields.io/badge/maintenance-active-1f6feb?style=flat-square"/>
         <img src="https://img.shields.io/badge/language-Python-3572A5?style=flat-square&logo=python&logoColor=white"/>
         <img src="https://img.shields.io/badge/license-MIT-6e7781?style=flat-square"/>
@@ -39,9 +39,11 @@
 
 <p align="center">
   <em>The tool recursively discovers all eligible files matching your parameters, displays a visual directory tree structure, and opens an interactive checkbox selection menu.</em><br>
-  <img src="./assets/screenshots/screenshot-001.png" alt="Interactive file picker showing the directory tree view and interactive checkbox prompt" width="600"/><br><br>
+  <img src="./assets/screenshots/screenshot-01.png" alt="Interactive file picker showing the directory tree view and interactive checkbox prompt" width="600"/><br><br>
   <em>After confirming your selection, files are seamlessly bundled into a structured text document alongside rich metric statistics.</em><br>
-  <img src="./assets/screenshots/screenshot-002.png" alt="Terminal screen showcasing successful bundle execution of selected files into the target output text document" width="600"/><br><br>
+  <img src="./assets/screenshots/screenshot-02.png" alt="Terminal screen showcasing successful bundle execution of selected files into the target output text document" width="600"/><br><br>
+  <em>Help and available commands.</em><br>
+  <img src="./assets/screenshots/screenshot-03.png" alt="Help and available commands" width="600"/><br><br>
 </p>
 
 ---
@@ -80,42 +82,71 @@ git clone https://github.com/avieira-dev/ctxgen.git
 cd ctxgen
 ```
 
-### 2. Set up a virtual environment & install dependencies
+### 2. Create the virtual environment
+
+> [!NOTE]  
+> Creating the virtual environment is **required** for ctxgen to work correctly.  
+> The root `ctxgen` launcher uses the Python interpreter located at `.venv/bin/python`. Therefore, the `.venv` directory must exist before running the application.
 
 ```bash
-# Create a virtual environment
 python3 -m venv .venv
+```
 
-# Activate the virtual environment (Linux/macOS)
-source venv/bin/activate
+> [!IMPORTANT]  
+> Do not skip this step. The `ctxgen` launcher is configured to use the project's `.venv` Python interpreter instead of the system Python installation.
 
-# Install dependencies
+### 3. Activate the virtual environment (Linux/macOS)
+
+On Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+### 4. Install dependencies
+
+With the virtual environment activated, install the required dependencies:
+
+```bash
 pip install rich InquirerPy
 ```
 
-> [!NOTE]  
-> If you prefer installing dependencies system-wide or user-wide instead of using a `venv`, you can run `pip install rich InquirerPy --user`.
+> [!IMPORTANT]  
+> Installing these dependencies inside the `.venv` is required. Do not install them system-wide or rely on `pip install --user`.
 
-### 3. Make the script executable
+After installation, you can deactivate the environment:
+
+```bash
+deactivate
+```
+
+You do not need to activate `.venv` every time you run `ctxgen`. The root launcher automatically uses `.venv/bin/python`.
+
+### 5. Make the script executable
 
 ```bash
 chmod +x ctxgen
 ```
 
 > [!TIP]  
-> The root `ctxgen` script acts as the entry-point runner, bootstrapping the internal source modules automatically.
+> The root `ctxgen` script acts as the entry-point runner, locating the project directory and launching the application with its dedicated virtual environment.
 
-### 4. Create a global symlink (Linux / macOS)
+### 6. Create a global symlink (Linux / macOS)
+
+Create a symbolic link so ctxgen can be executed from any directory:
 
 ```bash
 sudo ln -s "$(pwd)/ctxgen" /usr/local/bin/ctxgen
 ```
 
-Once linked, `ctxgen` is available system-wide from any terminal session.
+Once linked, `ctxgen` is available from any terminal session and can be executed from any working directory.
 
 > [!NOTE]  
-> To uninstall, simply remove the symlink:  
-> sudo rm /usr/local/bin/ctxgen
+> To uninstall the global command, simply remove the symlink:
+
+```bash
+sudo rm /usr/local/bin/ctxgen
+```
 
 ---
 
@@ -170,6 +201,9 @@ ctxgen/
 ├── LICENSE
 └── README.md
 ```
+
+> [!NOTE]  
+> The `.venv` directory is intentionally omitted from the project structure because it is a local virtual environment and should not be committed to version control.
 
 ---
 
